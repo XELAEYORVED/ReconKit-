@@ -23,6 +23,13 @@ export function ScanForm() {
   const toggle = (name: string) =>
     setSelected((s) => (s.includes(name) ? s.filter((x) => x !== name) : [...s, name]));
 
+  const EXAMPLES: { value: string; kind: string; hint: string }[] = [
+    { value: "github.com", kind: "domain", hint: "a website / domain" },
+    { value: "8.8.8.8", kind: "ip", hint: "an IP address" },
+    { value: "user@example.com", kind: "email", hint: "an email address" },
+    { value: "johndoe", kind: "username", hint: "a username" },
+  ];
+
   const submit = async () => {
     if (!target.trim()) return;
     const res = await createScan.mutateAsync({
@@ -37,10 +44,15 @@ export function ScanForm() {
     <div className="card space-y-4">
       <div>
         <label className="text-xs text-muted uppercase tracking-widest">Target</label>
+        <p className="text-sm text-muted mt-1 mb-2">
+          Enter <span className="text-ink">one</span> thing to investigate — a domain, an IP
+          address, an email, or a username. No <code className="text-accent2">http://</code>, no
+          spaces. ReconKit detects the type automatically.
+        </p>
         <div className="flex gap-2 mt-1">
           <input
             className="input font-mono"
-            placeholder="example.com · 8.8.8.8 · user@example.com · johndoe"
+            placeholder="e.g. github.com"
             value={target}
             onChange={(e) => setTarget(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && submit()}
@@ -49,10 +61,29 @@ export function ScanForm() {
             {createScan.isPending ? "Launching…" : "Run Scan"}
           </button>
         </div>
+
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <span className="text-[11px] text-muted">Try:</span>
+          {EXAMPLES.map((ex) => (
+            <button
+              key={ex.value}
+              type="button"
+              onClick={() => setTarget(ex.value)}
+              className="tag hover:border-accent hover:text-accent cursor-pointer"
+              title={`Example of ${ex.hint}`}
+            >
+              {ex.value}
+            </button>
+          ))}
+        </div>
+
         {target && (
-          <div className="mt-1 text-xs text-muted">
+          <div className="mt-2 text-xs text-muted">
             Detected type:{" "}
-            <span className={detected === "unknown" ? "text-risk-high" : "text-accent2"}>{detected}</span>
+            <span className={detected === "unknown" ? "text-risk-high" : "text-accent2"}>
+              {detected}
+            </span>
+            {detected === "unknown" && " — check the format (e.g. github.com, not https://github.com)"}
           </div>
         )}
       </div>
