@@ -121,6 +121,8 @@ def build_relation_graph(target: str, results: list[ModuleResult]) -> dict[str, 
             edge(root, ipn, "A")
         for mx in dns.get("records", {}).get("MX", []):
             host = mx.split()[-1].rstrip(".")
+            if not host:  # skip RFC 7505 "null MX" (0 .)
+                continue
             mxn = node(f"mx:{host}", host, "mx", "attention")
             edge(root, mxn, "MX")
 
