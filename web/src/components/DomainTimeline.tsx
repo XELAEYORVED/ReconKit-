@@ -23,7 +23,7 @@ export function DomainTimeline({ results }: { results: ResultItem[] }) {
   }
 
   const sorted = events.filter((e) => e.date && e.date !== "—").sort((a, b) => a.date.localeCompare(b.date));
-  const color: Record<string, string> = { whois: "#8aa7bd", wayback: "#e3a53b", cert: "#c9972f" };
+  const color: Record<string, string> = { whois: "#9bbdd6", wayback: "#5a8cb3", cert: "#cf9a46" };
 
   if (sorted.length === 0)
     return <div className="card text-sm text-muted">No historical data (run WHOIS / Wayback / Certs).</div>;

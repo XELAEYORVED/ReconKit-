@@ -6,7 +6,7 @@ import type { ResultItem } from "../lib/types";
 // Fix default marker icons (bundler strips the asset paths otherwise).
 const icon = L.divIcon({
   className: "",
-  html: `<div style="width:14px;height:14px;border-radius:50%;background:#e3a53b;box-shadow:0 0 10px #e3a53b;border:2px solid #141210"></div>`,
+  html: `<div style="width:14px;height:14px;border-radius:50%;background:#5a8cb3;box-shadow:0 0 10px #5a8cb3;border:2px solid #10151a"></div>`,
   iconSize: [14, 14],
   iconAnchor: [7, 7],
 });

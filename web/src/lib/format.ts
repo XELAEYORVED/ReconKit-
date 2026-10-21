@@ -3,13 +3,13 @@ import type { RiskLevel } from "./types";
 export function riskColor(level: RiskLevel | string): string {
   switch (level) {
     case "critical":
-      return "#a93a30"; // brick
+      return "#b2453a"; // brick
     case "high":
-      return "#c2622c"; // burnt orange
+      return "#c56b3c"; // burnt orange
     case "medium":
-      return "#c9972f"; // ochre
+      return "#cf9a46"; // ochre
     default:
-      return "#8fa06a"; // sage
+      return "#7fa07a"; // sage
   }
 }
 
