@@ -7,7 +7,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from reconkit.models import Result, Scan
+from reconkit.models import FAVORITE_TAG, Result, Scan, ScanNote, ScanTag
 
 
 async def get_scan(session: AsyncSession, scan_id: str) -> Scan | None:
@@ -21,13 +21,78 @@ async def get_scan_dict(session: AsyncSession, scan_id: str,
 
 
 async def list_scans(session: AsyncSession, limit: int = 50, offset: int = 0,
-                     target: str | None = None) -> list[dict[str, Any]]:
+                     target: str | None = None, tag: str | None = None,
+                     favorite: bool = False) -> list[dict[str, Any]]:
     stmt = select(Scan).order_by(Scan.started_at.desc())
     if target:
         stmt = stmt.where(Scan.target.like(f"%{target}%"))
+    if favorite:
+        stmt = stmt.where(Scan.tags.any(ScanTag.tag == FAVORITE_TAG))
+    if tag:
+        stmt = stmt.where(Scan.tags.any(ScanTag.tag == tag))
     stmt = stmt.limit(limit).offset(offset)
     rows = (await session.execute(stmt)).scalars().all()
     return [s.to_dict() for s in rows]
+
+
+async def add_tag(session: AsyncSession, scan_id: str, tag: str) -> dict[str, Any] | None:
+    scan = await get_scan(session, scan_id)
+    if not scan:
+        return None
+    tag = tag.strip().lower()
+    if tag and tag not in [t.tag for t in scan.tags]:
+        session.add(ScanTag(scan_id=scan_id, tag=tag))
+        await session.flush()
+        await session.refresh(scan)
+    return scan.to_dict()
+
+
+async def remove_tag(session: AsyncSession, scan_id: str, tag: str) -> dict[str, Any] | None:
+    scan = await get_scan(session, scan_id)
+    if not scan:
+        return None
+    for t in list(scan.tags):
+        if t.tag == tag.strip().lower():
+            await session.delete(t)
+    await session.flush()
+    await session.refresh(scan)
+    return scan.to_dict()
+
+
+async def toggle_favorite(session: AsyncSession, scan_id: str) -> dict[str, Any] | None:
+    scan = await get_scan(session, scan_id)
+    if not scan:
+        return None
+    existing = [t for t in scan.tags if t.tag == FAVORITE_TAG]
+    if existing:
+        for t in existing:
+            await session.delete(t)
+    else:
+        session.add(ScanTag(scan_id=scan_id, tag=FAVORITE_TAG))
+    await session.flush()
+    await session.refresh(scan)
+    return scan.to_dict()
+
+
+async def add_note(session: AsyncSession, scan_id: str, content: str) -> dict[str, Any] | None:
+    scan = await get_scan(session, scan_id)
+    if not scan:
+        return None
+    note = ScanNote(scan_id=scan_id, content=content.strip())
+    session.add(note)
+    await session.flush()
+    return note.to_dict()
+
+
+async def delete_note(session: AsyncSession, scan_id: str, note_id: str) -> bool:
+    scan = await get_scan(session, scan_id)
+    if not scan:
+        return False
+    for n in list(scan.notes):
+        if n.id == note_id:
+            await session.delete(n)
+            return True
+    return False
 
 
 async def dashboard_stats(session: AsyncSession) -> dict[str, Any]:

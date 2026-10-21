@@ -28,6 +28,10 @@ def _new_id(prefix: str) -> str:
     return f"{prefix}-{uuid.uuid4().hex[:12]}"
 
 
+# Reserved tag used to mark a scan as a favorite (avoids a schema migration).
+FAVORITE_TAG = "favorite"
+
+
 class Base(DeclarativeBase):
     pass
 
@@ -73,6 +77,7 @@ class Scan(Base):
     )
 
     def to_dict(self, include_results: bool = False) -> dict:
+        all_tags = [t.tag for t in self.tags]
         d = {
             "id": self.id,
             "target": self.target,
@@ -84,7 +89,9 @@ class Scan(Base):
             "error": self.error,
             "started_at": self.started_at.isoformat() if self.started_at else None,
             "completed_at": self.completed_at.isoformat() if self.completed_at else None,
-            "tags": [t.tag for t in self.tags],
+            # User-facing tags exclude the reserved favorite marker.
+            "tags": [t for t in all_tags if t != FAVORITE_TAG],
+            "favorite": FAVORITE_TAG in all_tags,
             "notes": [n.to_dict() for n in self.notes],
         }
         if include_results:

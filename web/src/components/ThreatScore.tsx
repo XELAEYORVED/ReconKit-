@@ -10,7 +10,7 @@ export function ThreatScore({ score, size = 160 }: { score: number; size?: numbe
   return (
     <div className="flex flex-col items-center">
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#1f2937" strokeWidth={10} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#3a3125" strokeWidth={10} />
         <circle
           cx={size / 2}
           cy={size / 2}

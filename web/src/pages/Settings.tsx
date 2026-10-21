@@ -33,18 +33,18 @@ export function Settings() {
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <h1 className="text-xl text-neon">Settings</h1>
+      <h1 className="text-xl text-accent">Settings</h1>
 
       <div className="card">
-        <h3 className="text-sm text-neon mb-1">API Keys</h3>
-        <p className="text-xs text-gray-500 mb-4">
+        <h3 className="text-sm text-accent mb-1">API Keys</h3>
+        <p className="text-xs text-muted mb-4">
           Keys are stored encrypted. ReconKit works without them — keys simply unlock advanced
           modules.
         </p>
         <div className="space-y-2">
           {(keys ?? []).map((k) => (
             <div key={k.service} className="flex items-center gap-2">
-              <div className="w-40 text-sm text-gray-300">{SERVICE_LABELS[k.service] ?? k.service}</div>
+              <div className="w-40 text-sm text-ink/80">{SERVICE_LABELS[k.service] ?? k.service}</div>
               <input
                 type="password"
                 className="input flex-1"
@@ -73,12 +73,12 @@ export function Settings() {
       </div>
 
       <div className="card">
-        <h3 className="text-sm text-neon mb-3">Module availability</h3>
+        <h3 className="text-sm text-accent mb-3">Module availability</h3>
         <div className="grid sm:grid-cols-2 gap-2">
           {(modules ?? []).map((m) => (
             <div key={m.name} className="flex items-center justify-between text-xs py-1 px-2 rounded bg-panel2/50">
-              <span className="font-mono text-gray-300">{m.name}</span>
-              <span className={m.available ? "text-neon" : "text-risk-high"}>
+              <span className="font-mono text-ink/80">{m.name}</span>
+              <span className={m.available ? "text-accent" : "text-risk-high"}>
                 {m.available ? "ready" : m.requires_api_key ? "needs key" : "unavailable"}
               </span>
             </div>

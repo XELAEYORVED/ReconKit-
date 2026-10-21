@@ -36,7 +36,7 @@ export function ScanForm() {
   return (
     <div className="card space-y-4">
       <div>
-        <label className="text-xs text-gray-400 uppercase tracking-widest">Target</label>
+        <label className="text-xs text-muted uppercase tracking-widest">Target</label>
         <div className="flex gap-2 mt-1">
           <input
             className="input font-mono"
@@ -50,14 +50,14 @@ export function ScanForm() {
           </button>
         </div>
         {target && (
-          <div className="mt-1 text-xs text-gray-500">
+          <div className="mt-1 text-xs text-muted">
             Detected type:{" "}
-            <span className={detected === "unknown" ? "text-risk-high" : "text-cyan"}>{detected}</span>
+            <span className={detected === "unknown" ? "text-risk-high" : "text-accent2"}>{detected}</span>
           </div>
         )}
       </div>
 
-      <label className="flex items-center gap-2 text-sm text-gray-300">
+      <label className="flex items-center gap-2 text-sm text-ink/80">
         <input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} />
         Auto-select relevant modules
       </label>
@@ -70,8 +70,8 @@ export function ScanForm() {
               onClick={() => toggle(m.name)}
               className={`text-left p-2 rounded-lg border text-xs transition-colors ${
                 selected.includes(m.name)
-                  ? "border-neon bg-panel2 text-neon"
-                  : "border-border text-gray-400 hover:border-cyan"
+                  ? "border-accent bg-panel2 text-accent"
+                  : "border-border text-muted hover:border-accent2"
               } ${!m.available ? "opacity-50" : ""}`}
               title={m.description}
             >
@@ -79,7 +79,7 @@ export function ScanForm() {
                 {m.name}
                 {m.requires_api_key && !m.available && <span className="text-[9px] text-risk-high">key</span>}
               </div>
-              <div className="text-[10px] text-gray-500 truncate">{m.description}</div>
+              <div className="text-[10px] text-muted truncate">{m.description}</div>
             </button>
           ))}
         </div>

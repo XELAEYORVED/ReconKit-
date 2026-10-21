@@ -31,7 +31,7 @@ export function Results() {
   const { data: scan, isLoading } = useScan(id, false);
   const [tab, setTab] = useState<Tab>("Synthèse");
 
-  if (isLoading || !scan) return <div className="text-gray-500">Loading results…</div>;
+  if (isLoading || !scan) return <div className="text-muted">Loading results…</div>;
   const results = scan.results ?? [];
   const summary = scan.summary;
   const graph = summary?.graph ?? { nodes: [], edges: [] };
@@ -40,8 +40,8 @@ export function Results() {
     <div className="space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl text-neon font-mono">{scan.target}</h1>
-          <div className="text-xs text-gray-500">
+          <h1 className="text-xl text-accent font-mono">{scan.target}</h1>
+          <div className="text-xs text-muted">
             {scan.target_type} · {scan.id} · {scan.status}
           </div>
         </div>
@@ -53,7 +53,7 @@ export function Results() {
             key={t}
             onClick={() => setTab(t)}
             className={`px-3 py-2 text-sm border-b-2 -mb-px transition-colors ${
-              tab === t ? "border-neon text-neon" : "border-transparent text-gray-400 hover:text-cyan"
+              tab === t ? "border-accent text-accent" : "border-transparent text-muted hover:text-accent2"
             }`}
           >
             {t}
@@ -67,23 +67,23 @@ export function Results() {
             <ThreatScore score={scan.threat_score} />
           </div>
           <div className="card md:col-span-2">
-            <h3 className="text-sm text-neon mb-2">Threat factors</h3>
+            <h3 className="text-sm text-accent mb-2">Threat factors</h3>
             {(summary?.threat_factors ?? []).length === 0 && (
-              <div className="text-sm text-gray-500">No risk factors detected.</div>
+              <div className="text-sm text-muted">No risk factors detected.</div>
             )}
             <ul className="space-y-1 text-sm">
               {summary?.threat_factors?.map((f, i) => (
                 <li key={i} className="flex gap-2">
                   <span className="text-risk-high font-mono">+{f.points}</span>
-                  <span className="text-gray-300">{f.reason}</span>
+                  <span className="text-ink/80">{f.reason}</span>
                 </li>
               ))}
             </ul>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-4 text-xs">
               {Object.entries(summary?.highlights ?? {}).map(([k, v]) => (
                 <div key={k} className="bg-panel2 rounded-lg p-2">
-                  <div className="text-gray-500">{k.replace(/_/g, " ")}</div>
-                  <div className="text-gray-200 font-mono truncate">
+                  <div className="text-muted">{k.replace(/_/g, " ")}</div>
+                  <div className="text-ink font-mono truncate">
                     {Array.isArray(v) ? v.length : String(v ?? "—")}
                   </div>
                 </div>

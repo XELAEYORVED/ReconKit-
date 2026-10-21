@@ -6,7 +6,7 @@ import type { ResultItem } from "../lib/types";
 // Fix default marker icons (bundler strips the asset paths otherwise).
 const icon = L.divIcon({
   className: "",
-  html: `<div style="width:14px;height:14px;border-radius:50%;background:#39ff14;box-shadow:0 0 10px #39ff14;border:2px solid #0a0a0f"></div>`,
+  html: `<div style="width:14px;height:14px;border-radius:50%;background:#e3a53b;box-shadow:0 0 10px #e3a53b;border:2px solid #141210"></div>`,
   iconSize: [14, 14],
   iconAnchor: [7, 7],
 });
@@ -32,7 +32,7 @@ export function GeoMap({ results }: { results: ResultItem[] }) {
   }
 
   if (points.length === 0)
-    return <div className="card text-sm text-gray-500">No geolocation data available.</div>;
+    return <div className="card text-sm text-muted">No geolocation data available.</div>;
 
   const center: [number, number] = [points[0].lat, points[0].lon];
 

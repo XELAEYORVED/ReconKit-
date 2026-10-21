@@ -26,7 +26,7 @@ export function ResultsTable({ results }: { results: ResultItem[] }) {
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
-            <tr className="text-left text-gray-400 border-b border-border">
+            <tr className="text-left text-muted border-b border-border">
               <th className="py-2 px-2">Module</th>
               <th className="px-2">Status</th>
               <th className="px-2">Confidence</th>
@@ -42,21 +42,21 @@ export function ResultsTable({ results }: { results: ResultItem[] }) {
                   className="border-b border-border/50 hover:bg-panel2/50 cursor-pointer"
                   onClick={() => setExpanded(expanded === r.id ? null : r.id)}
                 >
-                  <td className="py-2 px-2 font-mono text-cyan">{r.module_name}</td>
+                  <td className="py-2 px-2 font-mono text-accent2">{r.module_name}</td>
                   <td className="px-2">
                     <span
                       className={
                         r.status === "ok"
-                          ? "text-neon"
+                          ? "text-accent"
                           : r.status === "skipped"
-                            ? "text-yellow-500"
+                            ? "text-risk-medium"
                             : "text-risk-high"
                       }
                     >
                       {r.status}
                     </span>
                   </td>
-                  <td className="px-2 text-gray-400">{Math.round(r.confidence * 100)}%</td>
+                  <td className="px-2 text-muted">{Math.round(r.confidence * 100)}%</td>
                   <td className="px-2">
                     {r.tags.slice(0, 3).map((t) => (
                       <span key={t} className="tag">
@@ -64,14 +64,14 @@ export function ResultsTable({ results }: { results: ResultItem[] }) {
                       </span>
                     ))}
                   </td>
-                  <td className="px-2 text-gray-400">
+                  <td className="px-2 text-muted">
                     {r.status === "ok" ? `${Object.keys(r.data).length} fields` : r.error}
                   </td>
                 </tr>
                 {expanded === r.id && (
                   <tr key={r.id + "-exp"}>
                     <td colSpan={5} className="bg-base p-0">
-                      <pre className="p-3 text-[10px] text-gray-300 overflow-x-auto max-h-96">
+                      <pre className="p-3 text-[10px] text-ink/80 overflow-x-auto max-h-96">
                         {JSON.stringify(r.data, null, 2)}
                       </pre>
                     </td>
@@ -81,7 +81,7 @@ export function ResultsTable({ results }: { results: ResultItem[] }) {
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={5} className="py-4 text-center text-gray-500">
+                <td colSpan={5} className="py-4 text-center text-muted">
                   No matching results.
                 </td>
               </tr>

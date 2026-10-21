@@ -23,14 +23,14 @@ export function DomainTimeline({ results }: { results: ResultItem[] }) {
   }
 
   const sorted = events.filter((e) => e.date && e.date !== "—").sort((a, b) => a.date.localeCompare(b.date));
-  const color: Record<string, string> = { whois: "#22d3ee", wayback: "#39ff14", cert: "#f59e0b" };
+  const color: Record<string, string> = { whois: "#8aa7bd", wayback: "#e3a53b", cert: "#c9972f" };
 
   if (sorted.length === 0)
-    return <div className="card text-sm text-gray-500">No historical data (run WHOIS / Wayback / Certs).</div>;
+    return <div className="card text-sm text-muted">No historical data (run WHOIS / Wayback / Certs).</div>;
 
   return (
     <div className="card">
-      <h3 className="text-neon text-sm mb-4">Domain Timeline</h3>
+      <h3 className="text-accent text-sm mb-4">Domain Timeline</h3>
       <div className="relative pl-6 border-l border-border space-y-4">
         {sorted.map((e, i) => (
           <div key={i} className="relative">
@@ -38,8 +38,8 @@ export function DomainTimeline({ results }: { results: ResultItem[] }) {
               className="absolute -left-[26px] top-1 w-3 h-3 rounded-full border-2 border-base"
               style={{ background: color[e.kind] }}
             />
-            <div className="text-xs font-mono text-gray-400">{e.date}</div>
-            <div className="text-sm text-gray-200">{e.label}</div>
+            <div className="text-xs font-mono text-muted">{e.date}</div>
+            <div className="text-sm text-ink">{e.label}</div>
           </div>
         ))}
       </div>

@@ -45,6 +45,18 @@ export const api = {
       body: JSON.stringify(body),
     }),
   deleteScan: (id: string) => req<void>(`/api/scans/${id}`, { method: "DELETE" }),
+  addTag: (id: string, tag: string) =>
+    req<Scan>(`/api/scans/${id}/tags`, { method: "POST", body: JSON.stringify({ tag }) }),
+  removeTag: (id: string, tag: string) =>
+    req<Scan>(`/api/scans/${id}/tags/${encodeURIComponent(tag)}`, { method: "DELETE" }),
+  toggleFavorite: (id: string) => req<Scan>(`/api/scans/${id}/favorite`, { method: "POST" }),
+  addNote: (id: string, content: string) =>
+    req<{ id: string; content: string; created_at: string }>(`/api/scans/${id}/notes`, {
+      method: "POST",
+      body: JSON.stringify({ content }),
+    }),
+  deleteNote: (id: string, noteId: string) =>
+    req<void>(`/api/scans/${id}/notes/${noteId}`, { method: "DELETE" }),
   compare: (a: string, b: string) => req<any>(`/api/compare/${a}/${b}`),
   apiKeys: () =>
     req<{ service: string; configured: boolean; source: string | null }[]>(
@@ -92,4 +104,35 @@ export function useDeleteScan() {
       qc.invalidateQueries({ queryKey: ["stats"] });
     },
   });
+}
+
+/** Mutations that annotate a scan (tags / favorite / notes) and refresh lists. */
+export function useScanAnnotations() {
+  const qc = useQueryClient();
+  const refresh = () => {
+    qc.invalidateQueries({ queryKey: ["scans"] });
+    qc.invalidateQueries({ queryKey: ["scan"] });
+  };
+  return {
+    addTag: useMutation({
+      mutationFn: ({ id, tag }: { id: string; tag: string }) => api.addTag(id, tag),
+      onSuccess: refresh,
+    }),
+    removeTag: useMutation({
+      mutationFn: ({ id, tag }: { id: string; tag: string }) => api.removeTag(id, tag),
+      onSuccess: refresh,
+    }),
+    toggleFavorite: useMutation({
+      mutationFn: (id: string) => api.toggleFavorite(id),
+      onSuccess: refresh,
+    }),
+    addNote: useMutation({
+      mutationFn: ({ id, content }: { id: string; content: string }) => api.addNote(id, content),
+      onSuccess: refresh,
+    }),
+    deleteNote: useMutation({
+      mutationFn: ({ id, noteId }: { id: string; noteId: string }) => api.deleteNote(id, noteId),
+      onSuccess: refresh,
+    }),
+  };
 }

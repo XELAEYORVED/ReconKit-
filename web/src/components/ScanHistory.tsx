@@ -1,87 +1,186 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useDeleteScan, useScans } from "../lib/api";
+import { api, useDeleteScan, useScanAnnotations, useScans } from "../lib/api";
 import { riskColor, riskFromScore, timeAgo } from "../lib/format";
+import type { Scan } from "../lib/types";
 import { useScanStore } from "../stores/scanStore";
 
 export function ScanHistory() {
   const [q, setQ] = useState("");
-  const { data: scans, isLoading } = useScans(q ? `?target=${encodeURIComponent(q)}` : "");
-  const del = useDeleteScan();
-  const { compareA, compareB, setCompare } = useScanStore();
-
-  const pick = (id: string) => {
-    if (compareA === id) setCompare(null, compareB);
-    else if (compareB === id) setCompare(compareA, null);
-    else if (!compareA) setCompare(id, compareB);
-    else if (!compareB) setCompare(compareA, id);
-    else setCompare(id, null);
-  };
+  const [favOnly, setFavOnly] = useState(false);
+  const params = new URLSearchParams();
+  if (q) params.set("target", q);
+  if (favOnly) params.set("favorite", "true");
+  const qs = params.toString();
+  const { data: scans, isLoading } = useScans(qs ? `?${qs}` : "");
+  const { compareA, compareB } = useScanStore();
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <input className="input" placeholder="Search by target…" value={q} onChange={(e) => setQ(e.target.value)} />
+      <div className="flex items-center gap-2 flex-wrap">
+        <input
+          className="input max-w-xs"
+          placeholder="Search by target…"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+        />
+        <button
+          onClick={() => setFavOnly((f) => !f)}
+          className={`btn ${favOnly ? "btn-primary" : "btn-ghost"}`}
+          title="Show favorites only"
+        >
+          ★ Favorites
+        </button>
         {compareA && compareB && (
-          <Link to={`/compare/${compareA}/${compareB}`} className="btn btn-primary whitespace-nowrap">
+          <Link to={`/compare/${compareA}/${compareB}`} className="btn btn-primary ml-auto">
             Compare selected →
           </Link>
         )}
       </div>
-      <div className="card overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left text-gray-400 border-b border-border text-xs">
-              <th className="py-2 px-2">cmp</th>
-              <th className="px-2">Target</th>
-              <th className="px-2">Type</th>
-              <th className="px-2">Status</th>
-              <th className="px-2">Score</th>
-              <th className="px-2">Started</th>
-              <th className="px-2"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {(scans ?? []).map((s) => {
-              const level = riskFromScore(s.threat_score);
-              const checked = compareA === s.id || compareB === s.id;
-              return (
-                <tr key={s.id} className="border-b border-border/40 hover:bg-panel2/40">
-                  <td className="px-2">
-                    <input type="checkbox" checked={checked} onChange={() => pick(s.id)} />
-                  </td>
-                  <td className="px-2 font-mono">
-                    <Link to={`/results/${s.id}`} className="text-cyan hover:text-neon">
-                      {s.target}
-                    </Link>
-                  </td>
-                  <td className="px-2 text-gray-500 text-xs">{s.target_type}</td>
-                  <td className="px-2 text-xs">{s.status}</td>
-                  <td className="px-2 font-mono" style={{ color: riskColor(level) }}>
-                    {s.threat_score}
-                  </td>
-                  <td className="px-2 text-gray-500 text-xs">{timeAgo(s.started_at)}</td>
-                  <td className="px-2 text-right">
-                    <button
-                      className="text-gray-600 hover:text-risk-high text-xs"
-                      onClick={() => del.mutate(s.id)}
-                    >
-                      delete
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-            {!isLoading && (scans ?? []).length === 0 && (
-              <tr>
-                <td colSpan={7} className="py-6 text-center text-gray-500">
-                  No scans found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+
+      <div className="space-y-2">
+        {(scans ?? []).map((s) => (
+          <ScanRow key={s.id} scan={s} />
+        ))}
+        {!isLoading && (scans ?? []).length === 0 && (
+          <div className="card text-center text-muted py-8">No scans found.</div>
+        )}
       </div>
+    </div>
+  );
+}
+
+function ScanRow({ scan }: { scan: Scan }) {
+  const [open, setOpen] = useState(false);
+  const [tagDraft, setTagDraft] = useState("");
+  const [noteDraft, setNoteDraft] = useState("");
+  const del = useDeleteScan();
+  const ann = useScanAnnotations();
+  const { compareA, compareB, setCompare } = useScanStore();
+  const level = riskFromScore(scan.threat_score);
+  const checked = compareA === scan.id || compareB === scan.id;
+
+  const pickCompare = () => {
+    if (compareA === scan.id) setCompare(null, compareB);
+    else if (compareB === scan.id) setCompare(compareA, null);
+    else if (!compareA) setCompare(scan.id, compareB);
+    else if (!compareB) setCompare(compareA, scan.id);
+    else setCompare(scan.id, null);
+  };
+
+  return (
+    <div className="card !p-0 overflow-hidden">
+      <div className="flex items-center gap-3 px-4 py-3">
+        <button
+          onClick={() => ann.toggleFavorite.mutate(scan.id)}
+          className={`text-lg leading-none transition-colors ${
+            scan.favorite ? "text-accent" : "text-muted hover:text-accent"
+          }`}
+          title={scan.favorite ? "Unfavorite" : "Favorite"}
+        >
+          {scan.favorite ? "★" : "☆"}
+        </button>
+        <input type="checkbox" checked={checked} onChange={pickCompare} title="Select to compare" />
+        <div className="min-w-0 flex-1">
+          <Link to={`/results/${scan.id}`} className="font-mono text-accent2 hover:text-accent">
+            {scan.target}
+          </Link>
+          <div className="flex items-center gap-2 text-[11px] text-muted">
+            <span>{scan.target_type}</span>
+            <span>·</span>
+            <span>{scan.status}</span>
+            <span>·</span>
+            <span>{timeAgo(scan.started_at)}</span>
+            {scan.tags.map((t) => (
+              <span key={t} className="tag">
+                {t}
+              </span>
+            ))}
+          </div>
+        </div>
+        <span className="font-mono text-lg tabular-nums" style={{ color: riskColor(level) }}>
+          {scan.threat_score}
+        </span>
+        <button className="btn-ghost btn !py-1 !px-2 text-xs" onClick={() => setOpen((o) => !o)}>
+          {open ? "Hide" : "Annotate"}
+        </button>
+        <a href={api.reportUrl(scan.id, "pdf")} download className="text-muted hover:text-accent text-xs" title="PDF report">
+          ⤓
+        </a>
+        <button
+          className="text-muted hover:text-risk-critical text-xs"
+          onClick={() => del.mutate(scan.id)}
+          title="Delete scan"
+        >
+          ✕
+        </button>
+      </div>
+
+      {open && (
+        <div className="border-t border-border bg-base/40 px-4 py-3 space-y-3">
+          <div>
+            <div className="text-[11px] uppercase tracking-widest text-muted mb-1">Tags</div>
+            <div className="flex flex-wrap items-center gap-1">
+              {scan.tags.map((t) => (
+                <span key={t} className="tag flex items-center gap-1">
+                  {t}
+                  <button
+                    className="text-muted hover:text-risk-critical"
+                    onClick={() => ann.removeTag.mutate({ id: scan.id, tag: t })}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+              <input
+                className="input !py-1 !w-32 text-xs"
+                placeholder="add tag…"
+                value={tagDraft}
+                onChange={(e) => setTagDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && tagDraft.trim()) {
+                    ann.addTag.mutate({ id: scan.id, tag: tagDraft.trim() });
+                    setTagDraft("");
+                  }
+                }}
+              />
+            </div>
+          </div>
+
+          <div>
+            <div className="text-[11px] uppercase tracking-widest text-muted mb-1">Notes</div>
+            <div className="space-y-1 mb-2">
+              {scan.notes.map((n) => (
+                <div key={n.id} className="flex items-start gap-2 text-sm bg-panel2 rounded-lg px-3 py-2">
+                  <span className="flex-1 text-ink/80">{n.content}</span>
+                  <span className="text-[10px] text-muted whitespace-nowrap">{timeAgo(n.created_at)}</span>
+                  <button
+                    className="text-muted hover:text-risk-critical"
+                    onClick={() => ann.deleteNote.mutate({ id: scan.id, noteId: n.id })}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              {scan.notes.length === 0 && <div className="text-xs text-muted">No notes yet.</div>}
+            </div>
+            <div className="flex gap-2">
+              <input
+                className="input !py-1 text-sm"
+                placeholder="Add a note and press Enter…"
+                value={noteDraft}
+                onChange={(e) => setNoteDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && noteDraft.trim()) {
+                    ann.addNote.mutate({ id: scan.id, content: noteDraft.trim() });
+                    setNoteDraft("");
+                  }
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

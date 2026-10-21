@@ -13,7 +13,7 @@ const FORMATS = [
 export function ExportPanel({ scanId }: { scanId: string }) {
   return (
     <div className="card">
-      <h3 className="text-neon text-sm mb-3">Export</h3>
+      <h3 className="text-accent text-sm mb-3">Export</h3>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
         {FORMATS.map((f) => (
           <a
@@ -23,7 +23,7 @@ export function ExportPanel({ scanId }: { scanId: string }) {
             download
           >
             <span className="font-semibold">{f.label}</span>
-            <span className="text-[10px] text-gray-500">{f.desc}</span>
+            <span className="text-[10px] text-muted">{f.desc}</span>
           </a>
         ))}
       </div>

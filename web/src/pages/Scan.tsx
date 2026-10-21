@@ -21,7 +21,7 @@ export function Scan() {
 
   return (
     <div className="space-y-6 max-w-4xl">
-      <h1 className="text-xl text-neon">New Scan</h1>
+      <h1 className="text-xl text-accent">New Scan</h1>
       <ScanForm />
       {scanId && (
         <>

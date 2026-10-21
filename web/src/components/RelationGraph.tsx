@@ -10,13 +10,14 @@ interface Sim extends GraphNode {
 }
 
 const SEVERITY_COLOR: Record<string, string> = {
-  safe: "#22c55e",
-  attention: "#f59e0b",
-  critical: "#ef4444",
-  medium: "#eab308",
-  high: "#f97316",
-  low: "#22c55e",
+  safe: "#8fa06a", // sage
+  attention: "#c9972f", // ochre
+  critical: "#a93a30", // brick
+  medium: "#c9972f",
+  high: "#c2622c",
+  low: "#8fa06a",
 };
+const ACCENT2 = "#8aa7bd";
 const TYPE_RADIUS: Record<string, number> = {
   target: 16,
   ip: 11,
@@ -148,18 +149,18 @@ export function RelationGraph({ graph }: { graph: Graph }) {
   const map = Object.fromEntries(nodes.current.map((n) => [n.id, n]));
 
   if (!graph.nodes?.length)
-    return <div className="card text-sm text-gray-500">No graph data for this scan.</div>;
+    return <div className="card text-sm text-muted">No graph data for this scan.</div>;
 
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm text-gray-300">Relation Graph</span>
+        <span className="text-sm text-ink/80">Relation Graph</span>
         <div className="flex flex-wrap gap-1">
           {types.map((t) => (
             <button
               key={t}
               onClick={() => setFilter(filter === t ? null : t)}
-              className={`tag ${filter === t ? "ring-1 ring-neon text-neon" : ""}`}
+              className={`tag ${filter === t ? "ring-1 ring-accent text-accent" : ""}`}
             >
               {t}
             </button>
@@ -195,7 +196,7 @@ export function RelationGraph({ graph }: { graph: Graph }) {
                 y1={a.y}
                 x2={b.x}
                 y2={b.y}
-                stroke={dim ? "#1f2937" : "#334155"}
+                stroke={dim ? "#2a241b" : "#4a3f2e"}
                 strokeWidth={1}
                 opacity={dim ? 0.2 : 0.7}
               />
@@ -204,7 +205,7 @@ export function RelationGraph({ graph }: { graph: Graph }) {
           {nodes.current.map((n) => {
             const dim = filter && n.type !== filter;
             const rad = TYPE_RADIUS[n.type] ?? 8;
-            const color = SEVERITY_COLOR[n.severity] ?? "#22d3ee";
+            const color = SEVERITY_COLOR[n.severity] ?? ACCENT2;
             return (
               <g
                 key={n.id}
@@ -216,12 +217,12 @@ export function RelationGraph({ graph }: { graph: Graph }) {
                 }}
                 className="cursor-pointer"
               >
-                <circle r={rad} fill={color} stroke="#0a0a0f" strokeWidth={2} />
+                <circle r={rad} fill={color} stroke="#141210" strokeWidth={2} />
                 <text
                   x={rad + 4}
                   y={4}
                   fontSize={10}
-                  fill="#cbd5e1"
+                  fill="#d8cdbb"
                   className="font-mono pointer-events-none"
                 >
                   {n.label.length > 26 ? n.label.slice(0, 24) + "…" : n.label}
@@ -231,7 +232,7 @@ export function RelationGraph({ graph }: { graph: Graph }) {
           })}
         </g>
       </svg>
-      <div className="mt-2 flex gap-3 text-[10px] text-gray-500">
+      <div className="mt-2 flex gap-3 text-[10px] text-muted">
         <span>● <span className="text-risk-low">safe</span></span>
         <span>● <span className="text-risk-medium">attention</span></span>
         <span>● <span className="text-risk-critical">critical</span></span>

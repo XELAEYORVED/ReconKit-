@@ -36,10 +36,12 @@ async def create_scan(body: ScanCreate, user=Depends(current_user)):
 @router.get("")
 async def list_scans(
     limit: int = Query(50, le=200), offset: int = 0,
-    target: str | None = None,
+    target: str | None = None, tag: str | None = None, favorite: bool = False,
     session: AsyncSession = Depends(get_session), user=Depends(current_user),
 ):
-    return await services.list_scans(session, limit=limit, offset=offset, target=target)
+    return await services.list_scans(
+        session, limit=limit, offset=offset, target=target, tag=tag, favorite=favorite
+    )
 
 
 @router.get("/stats")
@@ -102,3 +104,56 @@ async def delete_scan(scan_id: str, session: AsyncSession = Depends(get_session)
     ok = await services.delete_scan(session, scan_id)
     if not ok:
         raise HTTPException(404, "Scan not found")
+
+
+# --- tags / favorite / notes ------------------------------------------------
+class TagIn(BaseModel):
+    tag: str = Field(..., min_length=1, max_length=64)
+
+
+class NoteIn(BaseModel):
+    content: str = Field(..., min_length=1, max_length=4000)
+
+
+@router.post("/{scan_id}/tags")
+async def add_tag(scan_id: str, body: TagIn, session: AsyncSession = Depends(get_session),
+                  user=Depends(current_user)):
+    scan = await services.add_tag(session, scan_id, body.tag)
+    if not scan:
+        raise HTTPException(404, "Scan not found")
+    return scan
+
+
+@router.delete("/{scan_id}/tags/{tag}")
+async def remove_tag(scan_id: str, tag: str, session: AsyncSession = Depends(get_session),
+                     user=Depends(current_user)):
+    scan = await services.remove_tag(session, scan_id, tag)
+    if not scan:
+        raise HTTPException(404, "Scan not found")
+    return scan
+
+
+@router.post("/{scan_id}/favorite")
+async def toggle_favorite(scan_id: str, session: AsyncSession = Depends(get_session),
+                          user=Depends(current_user)):
+    scan = await services.toggle_favorite(session, scan_id)
+    if not scan:
+        raise HTTPException(404, "Scan not found")
+    return scan
+
+
+@router.post("/{scan_id}/notes", status_code=201)
+async def add_note(scan_id: str, body: NoteIn, session: AsyncSession = Depends(get_session),
+                   user=Depends(current_user)):
+    note = await services.add_note(session, scan_id, body.content)
+    if not note:
+        raise HTTPException(404, "Scan not found")
+    return note
+
+
+@router.delete("/{scan_id}/notes/{note_id}", status_code=204)
+async def delete_note(scan_id: str, note_id: str, session: AsyncSession = Depends(get_session),
+                      user=Depends(current_user)):
+    ok = await services.delete_note(session, scan_id, note_id)
+    if not ok:
+        raise HTTPException(404, "Note not found")

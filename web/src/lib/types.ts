@@ -70,6 +70,7 @@ export interface Scan {
   started_at: string | null;
   completed_at: string | null;
   tags: string[];
+  favorite: boolean;
   notes: { id: string; content: string; created_at: string }[];
   results?: ResultItem[];
 }
