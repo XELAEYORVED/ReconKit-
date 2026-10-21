@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #0a0a0f;
+  color: #d6f5e3;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+@layer components {
+  .card {
+    @apply bg-panel border border-border rounded-xl p-4;
+  }
+  .btn {
+    @apply px-3 py-2 rounded-lg text-sm font-medium transition-colors;
+  }
+  .btn-primary {
+    @apply bg-neon text-black hover:bg-green-400 shadow-neon;
+  }
+  .btn-ghost {
+    @apply border border-border text-gray-300 hover:border-neon hover:text-neon;
+  }
+  .input {
+    @apply w-full bg-panel2 border border-border rounded-lg px-3 py-2 text-sm
+           text-gray-100 focus:outline-none focus:border-neon placeholder-gray-500;
+  }
+  .tag {
+    @apply inline-block bg-panel2 text-cyan text-xs rounded-full px-2 py-0.5 mr-1 mb-1;
+  }
+}
+
+/* Leaflet dark fix */
+.leaflet-container {
+  background: #0f1117;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #1f2937;
+  border-radius: 6px;
+}
