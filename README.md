@@ -19,8 +19,20 @@ direct interaction** with target systems.
 - **Works with zero API keys** (reduced capability); keys unlock advanced modules.
 - **Realtime web dashboard**: live scan progress over WebSocket, interactive relation
   graph, geo map, network map, timeline, scan comparison/diff, history, export panel.
+- **Organize scans**: favorites, free-form tags, and notes per scan, with a
+  favorites filter — all managed from the History view.
 - **Reports**: JSON, HTML, Markdown, PDF. **Threat-intel export**: CSV, STIX 2.1, MISP.
 - **FastAPI** backend with optional JWT multi-user auth and encrypted API-key storage.
+
+### Interface
+
+A clean, Apple-inspired light UI: `#f5f5f7` canvas, white cards with soft
+shadows and large radii, system-blue accent, iOS system colors for the risk
+scale, San Francisco (system) typography, a frosted sticky header and a
+translucent sidebar. Stack: **React 18 + TypeScript + Vite + Tailwind**, with
+Zustand (state), React Query (data), a WebSocket hook (live progress), a
+dependency-light SVG force-directed relation graph, Leaflet (map) and
+Recharts (stats).
 
 ## Quick start (Docker)
 
@@ -71,9 +83,14 @@ reconkit serve --port 8000                         # web server
 | GET | `/api/scans` · `/api/scans/{id}` | List / detail |
 | GET | `/api/scans/{id}/results` · `/graph` | Results / relation graph |
 | DELETE | `/api/scans/{id}` | Delete |
+| POST/DELETE | `/api/scans/{id}/tags` · `/tags/{tag}` | Add / remove a tag |
+| POST | `/api/scans/{id}/favorite` | Toggle favorite |
+| POST/DELETE | `/api/scans/{id}/notes` · `/notes/{note_id}` | Add / delete a note |
 | GET | `/api/compare/{id1}/{id2}` | Diff two scans |
 | GET | `/api/reports/{id}?format=…` | json/html/md/pdf/csv/stix/misp |
 | WS | `/ws/scan/{id}` | Realtime scan events |
+
+`GET /api/scans` accepts `target`, `tag`, and `favorite=true` filters.
 
 ## Configuration
 
