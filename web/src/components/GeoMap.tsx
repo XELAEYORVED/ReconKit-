@@ -6,7 +6,7 @@ import type { ResultItem } from "../lib/types";
 // Fix default marker icons (bundler strips the asset paths otherwise).
 const icon = L.divIcon({
   className: "",
-  html: `<div style="width:14px;height:14px;border-radius:50%;background:#5a8cb3;box-shadow:0 0 10px #5a8cb3;border:2px solid #10151a"></div>`,
+  html: `<div style="width:14px;height:14px;border-radius:50%;background:#0071e3;box-shadow:0 0 10px #0071e3;border:2px solid #ffffff"></div>`,
   iconSize: [14, 14],
   iconAnchor: [7, 7],
 });
@@ -37,11 +37,11 @@ export function GeoMap({ results }: { results: ResultItem[] }) {
   const center: [number, number] = [points[0].lat, points[0].lon];
 
   return (
-    <div className="card p-0 overflow-hidden">
+    <div className="card !p-0 overflow-hidden">
       <MapContainer center={center} zoom={4} style={{ height: 480, width: "100%" }}>
         <TileLayer
-          attribution="&copy; OpenStreetMap"
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution="&copy; OpenStreetMap, &copy; CARTO"
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         />
         {points.map((p, i) => (
           <Marker key={i} position={[p.lat, p.lon]} icon={icon}>

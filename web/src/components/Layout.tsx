@@ -10,17 +10,20 @@ export function Layout({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen bg-base text-ink">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="border-b border-border bg-panel/80 backdrop-blur px-6 py-2 flex items-center justify-between sticky top-0 z-20">
-          <div className="text-xs text-muted font-mono">
-            <span className="text-accent">ReconKit</span> — Passive OSINT Only · Usage responsable
-            et légal uniquement
+        <header className="glass border-b border-border/70 px-6 py-3 flex items-center justify-between sticky top-0 z-20">
+          <div className="text-[13px] text-muted">
+            <span className="text-ink font-semibold">ReconKit</span>
+            <span className="mx-2 text-border">·</span>
+            Passive OSINT only — responsible &amp; lawful use
           </div>
           <div className="flex items-center gap-2 text-[11px] text-muted">
-            <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-risk-low" />
             {health ? `API v${health.version}` : "connecting…"}
           </div>
         </header>
-        <main className="flex-1 p-6 overflow-x-hidden">{children}</main>
+        <main className="flex-1 px-6 py-8 md:px-10 overflow-x-hidden max-w-[1200px] w-full mx-auto">
+          {children}
+        </main>
       </div>
     </div>
   );

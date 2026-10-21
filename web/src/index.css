@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html,
@@ -14,27 +14,24 @@ body,
 
 body {
   margin: 0;
-  background-color: #10151a;
-  /* faint blueprint hatch for texture, very low contrast */
-  background-image: radial-gradient(
-    circle at 1px 1px,
-    rgba(219, 227, 234, 0.028) 1px,
-    transparent 0
-  );
-  background-size: 4px 4px;
-  color: #dbe3ea;
-  font-family: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  background-color: #f5f5f7;
+  color: #1d1d1f;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui,
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  letter-spacing: -0.01em;
 }
 
 @layer base {
   h1 {
     @apply font-display font-semibold tracking-tight text-ink;
+    letter-spacing: -0.03em;
   }
   h2,
   h3 {
-    @apply font-display;
+    @apply font-display tracking-tight;
+    letter-spacing: -0.02em;
   }
   a {
     @apply transition-colors;
@@ -43,40 +40,46 @@ body {
 
 @layer components {
   .card {
-    @apply bg-panel border border-border rounded-xl p-4 shadow-soft;
+    @apply bg-panel border border-border/70 rounded-2xl p-5 shadow-card;
   }
   .btn {
-    @apply px-3 py-2 rounded-lg text-sm font-medium transition-all;
+    @apply px-4 py-2 rounded-full text-sm font-medium transition-all;
   }
   .btn-primary {
-    @apply bg-accent text-[#0c1116] hover:brightness-110 shadow-accent font-semibold;
+    @apply bg-accent text-white hover:brightness-105 active:brightness-95 shadow-accent;
   }
   .btn-ghost {
-    @apply border border-border text-ink/80 hover:border-accent hover:text-accent;
+    @apply bg-panel2 text-ink/90 border border-border/70 hover:bg-[#ebebef] hover:text-ink;
   }
   .input {
-    @apply w-full bg-panel2 border border-border rounded-lg px-3 py-2 text-sm
-           text-ink focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/40
-           placeholder-muted/60;
+    @apply w-full bg-panel border border-border rounded-xl px-3.5 py-2.5 text-sm
+           text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/15
+           placeholder-muted/70;
   }
   .tag {
-    @apply inline-block bg-panel2 text-accent2 text-xs rounded-full px-2 py-0.5 mr-1 mb-1
+    @apply inline-block bg-panel2 text-accent2 text-xs rounded-full px-2.5 py-0.5 mr-1 mb-1
            border border-border/60;
   }
-  /* Thin steel rule used as a section divider / brand flourish. */
+  /* Frosted translucent bar, the Apple nav signature. */
+  .glass {
+    @apply bg-white/70 backdrop-blur-apple;
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+  }
   .rule-accent {
-    @apply h-px w-full bg-gradient-to-r from-accent/60 via-border to-transparent;
+    @apply h-px w-full bg-border;
   }
 }
 
-/* Leaflet in the steel theme */
+/* Leaflet (light map) */
 .leaflet-container {
-  background: #171d23;
+  background: #e9e9ec;
 }
 .leaflet-popup-content-wrapper,
 .leaflet-popup-tip {
-  background: #202830;
-  color: #dbe3ea;
+  background: #ffffff;
+  color: #1d1d1f;
+  box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.25);
 }
 
 ::-webkit-scrollbar {
@@ -84,9 +87,9 @@ body {
   height: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2d363f;
-  border-radius: 6px;
+  background: #c7c7cc;
+  border-radius: 8px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #39444e;
+  background: #b0b0b5;
 }

@@ -10,14 +10,14 @@ interface Sim extends GraphNode {
 }
 
 const SEVERITY_COLOR: Record<string, string> = {
-  safe: "#7fa07a", // sage
-  attention: "#cf9a46", // ochre
-  critical: "#b2453a", // brick
-  medium: "#cf9a46",
-  high: "#c56b3c",
-  low: "#7fa07a",
+  safe: "#34c759", // sage
+  attention: "#ff9f0a", // ochre
+  critical: "#ff3b30", // brick
+  medium: "#ff9f0a",
+  high: "#ff9500",
+  low: "#34c759",
 };
-const ACCENT2 = "#9bbdd6";
+const ACCENT2 = "#0066cc";
 const TYPE_RADIUS: Record<string, number> = {
   target: 16,
   ip: 11,
@@ -196,7 +196,7 @@ export function RelationGraph({ graph }: { graph: Graph }) {
                 y1={a.y}
                 x2={b.x}
                 y2={b.y}
-                stroke={dim ? "#171d23" : "#39444e"}
+                stroke={dim ? "#171d23" : "#e8e8ed"}
                 strokeWidth={1}
                 opacity={dim ? 0.2 : 0.7}
               />
@@ -217,12 +217,12 @@ export function RelationGraph({ graph }: { graph: Graph }) {
                 }}
                 className="cursor-pointer"
               >
-                <circle r={rad} fill={color} stroke="#10151a" strokeWidth={2} />
+                <circle r={rad} fill={color} stroke="#ffffff" strokeWidth={2} />
                 <text
                   x={rad + 4}
                   y={4}
                   fontSize={10}
-                  fill="#dbe3ea"
+                  fill="#1d1d1f"
                   className="font-mono pointer-events-none"
                 >
                   {n.label.length > 26 ? n.label.slice(0, 24) + "…" : n.label}

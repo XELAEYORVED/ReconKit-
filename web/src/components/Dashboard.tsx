@@ -28,9 +28,9 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Stat label="Scans run" value={data.total_scans} accent="#5a8cb3" />
-        <Stat label="Unique targets" value={data.unique_targets} accent="#9bbdd6" />
-        <Stat label="Threats detected" value={data.threats_detected} accent="#c56b3c" />
+        <Stat label="Scans run" value={data.total_scans} accent="#0071e3" />
+        <Stat label="Unique targets" value={data.unique_targets} accent="#0066cc" />
+        <Stat label="Threats detected" value={data.threats_detected} accent="#ff9500" />
         <Stat label="Avg threat score" value={data.avg_threat_score} />
       </div>
 
@@ -40,14 +40,14 @@ export function Dashboard() {
           <AreaChart data={data.activity}>
             <defs>
               <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#5a8cb3" stopOpacity={0.5} />
-                <stop offset="100%" stopColor="#5a8cb3" stopOpacity={0} />
+                <stop offset="0%" stopColor="#0071e3" stopOpacity={0.5} />
+                <stop offset="100%" stopColor="#0071e3" stopOpacity={0} />
               </linearGradient>
             </defs>
             <XAxis dataKey="date" stroke="#6b7280" fontSize={11} />
             <YAxis stroke="#6b7280" fontSize={11} allowDecimals={false} />
-            <Tooltip contentStyle={{ background: "#202830", border: "1px solid #2d363f", color: "#dbe3ea", borderRadius: 8 }} />
-            <Area type="monotone" dataKey="count" stroke="#5a8cb3" fill="url(#g)" strokeWidth={2} />
+            <Tooltip contentStyle={{ background: "#ffffff", border: "1px solid #d2d2d7", color: "#1d1d1f", borderRadius: 8 }} />
+            <Area type="monotone" dataKey="count" stroke="#0071e3" fill="url(#g)" strokeWidth={2} />
           </AreaChart>
         </ResponsiveContainer>
       </div>
