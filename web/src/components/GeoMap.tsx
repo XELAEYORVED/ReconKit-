@@ -32,7 +32,7 @@ export function GeoMap({ results }: { results: ResultItem[] }) {
   }
 
   if (points.length === 0)
-    return <div className="card text-sm text-muted">No geolocation data available.</div>;
+    return <div className="card text-sm text-muted">Pas de données de localisation pour ce scan.</div>;
 
   const center: [number, number] = [points[0].lat, points[0].lon];
 

@@ -11,7 +11,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from reconkit.config import get_settings
+from reconkit.config import apply_api_key, get_settings
 from reconkit.database import get_session
 from reconkit.models import ApiKey
 from reconkit.modules import get_registry
@@ -57,6 +57,7 @@ async def set_key(body: ApiKeyIn, session: AsyncSession = Depends(get_session),
         existing.key_encrypted = enc
     else:
         session.add(ApiKey(service=body.service, key_encrypted=enc))
+    apply_api_key(body.service, body.key)  # usable immediately, no restart needed
     return {"service": body.service, "configured": True}
 
 
@@ -67,6 +68,7 @@ async def delete_key(service: str, session: AsyncSession = Depends(get_session),
         select(ApiKey).where(ApiKey.service == service))).scalar_one_or_none()
     if existing:
         await session.delete(existing)
+    apply_api_key(service, None)
 
 
 @router.get("/modules")

@@ -33,8 +33,31 @@ export function timeAgo(iso: string | null): string {
   if (!iso) return "—";
   const d = new Date(iso).getTime();
   const s = Math.floor((Date.now() - d) / 1000);
-  if (s < 60) return `${s}s ago`;
-  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
-  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
-  return `${Math.floor(s / 86400)}d ago`;
+  if (s < 60) return "à l’instant";
+  if (s < 3600) return `il y a ${Math.floor(s / 60)} min`;
+  if (s < 86400) return `il y a ${Math.floor(s / 3600)} h`;
+  return `il y a ${Math.floor(s / 86400)} j`;
+}
+
+/** French wording for the threat factors produced by the backend. */
+const FACTOR_FR: [RegExp, string][] = [
+  [/^(\d+) security headers missing$/, "$1 protections de sécurité HTTP manquantes"],
+  [/^CORS allows any origin \(\*\)$/, "Le site accepte les requêtes de n'importe quel site (CORS « * »)"],
+  [/^Cookies missing security flags$/, "Des cookies n'ont pas les options de sécurité"],
+  [/^Sensitive ports exposed: (.*)$/, "Ports sensibles ouverts sur Internet : $1"],
+  [/^(\d+) known CVEs reported by Shodan$/, "$1 faille(s) connue(s) signalée(s) par Shodan"],
+  [/^(\d+) data breaches$/, "Présent dans $1 fuite(s) de données"],
+  [/^Email domain (\S+) has no enforced DMARC policy \(spoofable\)$/, "Le domaine $1 n'applique pas DMARC : on peut usurper ses emails"],
+  [/^Disposable \(throwaway\) email provider$/, "Fournisseur d'email jetable"],
+  [/^(\d+) negative reputation signals$/, "$1 signalement(s) de mauvaise réputation"],
+  [/^Large certificate SAN sprawl \((\d+) hostnames\)$/, "Très nombreux noms dans les certificats ($1)"],
+  [/^(\d+) potential secret leaks on GitHub$/, "$1 fuite(s) de secrets possible(s) sur GitHub"],
+  [/^Potentially outdated (.*)$/, "Version peut-être obsolète : $1"],
+  [/^Sensitive pages exposed via dorks$/, "Pages sensibles visibles sur Google"],
+  [/^Mentions found in public pastes$/, "Mentions trouvées sur des sites de « paste »"],
+];
+
+export function factorFr(reason: string): string {
+  for (const [re, fr] of FACTOR_FR) if (re.test(reason)) return reason.replace(re, fr);
+  return reason;
 }

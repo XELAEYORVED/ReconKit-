@@ -149,12 +149,12 @@ export function RelationGraph({ graph }: { graph: Graph }) {
   const map = Object.fromEntries(nodes.current.map((n) => [n.id, n]));
 
   if (!graph.nodes?.length)
-    return <div className="card text-sm text-muted">No graph data for this scan.</div>;
+    return <div className="card text-sm text-muted">Pas de graphe pour ce scan.</div>;
 
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm text-ink/80">Relation Graph</span>
+        <span className="font-semibold text-ink">Graphe des relations</span>
         <div className="flex flex-wrap gap-1">
           {types.map((t) => (
             <button
@@ -233,10 +233,10 @@ export function RelationGraph({ graph }: { graph: Graph }) {
         </g>
       </svg>
       <div className="mt-2 flex gap-3 text-[10px] text-muted">
-        <span>● <span className="text-risk-low">safe</span></span>
-        <span>● <span className="text-risk-medium">attention</span></span>
-        <span>● <span className="text-risk-critical">critical</span></span>
-        <span className="ml-auto">drag nodes · scroll to zoom · drag canvas to pan</span>
+        <span>● <span className="text-risk-low">sain</span></span>
+        <span>● <span className="text-risk-medium">à surveiller</span></span>
+        <span>● <span className="text-risk-critical">critique</span></span>
+        <span className="ml-auto">glisser les points · molette pour zoomer · glisser le fond pour déplacer</span>
       </div>
     </div>
   );

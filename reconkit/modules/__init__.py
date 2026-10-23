@@ -28,6 +28,7 @@ from . import (  # noqa: E402,F401
     github_recon,
     pastebin_monitor,
     network_map,
+    email_profile,
 )
 
 __all__ = [

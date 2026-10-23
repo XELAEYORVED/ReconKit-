@@ -35,7 +35,7 @@ TYPE_MODULES: dict[TargetType, list[str]] = {
         "shodan", "github", "pastebin", "network_map",
     ],
     TargetType.IP: ["whois", "ip_geo", "reputation", "shodan", "network_map"],
-    TargetType.EMAIL: ["leak_check", "pastebin"],
+    TargetType.EMAIL: ["email_profile", "leak_check", "pastebin"],
     TargetType.USERNAME: ["social"],
 }
 

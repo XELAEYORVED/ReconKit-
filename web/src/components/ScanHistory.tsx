@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { api, useDeleteScan, useScanAnnotations, useScans } from "../lib/api";
 import { riskColor, riskFromScore, timeAgo } from "../lib/format";
+import { STATUS_LABEL, TYPE_LABEL } from "../lib/modules";
 import type { Scan } from "../lib/types";
 import { useScanStore } from "../stores/scanStore";
 
@@ -20,20 +21,20 @@ export function ScanHistory() {
       <div className="flex items-center gap-2 flex-wrap">
         <input
           className="input max-w-xs"
-          placeholder="Search by target…"
+          placeholder="Rechercher une cible…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
         <button
           onClick={() => setFavOnly((f) => !f)}
           className={`btn ${favOnly ? "btn-primary" : "btn-ghost"}`}
-          title="Show favorites only"
+          title="Afficher seulement les favoris"
         >
-          ★ Favorites
+          ★ Favoris
         </button>
         {compareA && compareB && (
           <Link to={`/compare/${compareA}/${compareB}`} className="btn btn-primary ml-auto">
-            Compare selected →
+            Comparer la sélection →
           </Link>
         )}
       </div>
@@ -43,7 +44,7 @@ export function ScanHistory() {
           <ScanRow key={s.id} scan={s} />
         ))}
         {!isLoading && (scans ?? []).length === 0 && (
-          <div className="card text-center text-muted py-8">No scans found.</div>
+          <div className="card text-center text-muted py-8">Aucun scan trouvé.</div>
         )}
       </div>
     </div>
@@ -76,19 +77,19 @@ function ScanRow({ scan }: { scan: Scan }) {
           className={`text-lg leading-none transition-colors ${
             scan.favorite ? "text-accent" : "text-muted hover:text-accent"
           }`}
-          title={scan.favorite ? "Unfavorite" : "Favorite"}
+          title={scan.favorite ? "Retirer des favoris" : "Ajouter aux favoris"}
         >
           {scan.favorite ? "★" : "☆"}
         </button>
-        <input type="checkbox" checked={checked} onChange={pickCompare} title="Select to compare" />
+        <input type="checkbox" checked={checked} onChange={pickCompare} title="Cocher pour comparer" />
         <div className="min-w-0 flex-1">
-          <Link to={`/results/${scan.id}`} className="font-mono text-accent2 hover:text-accent">
+          <Link to={scan.status === "failed" ? `/scan/${scan.id}` : `/results/${scan.id}`} className="font-medium text-ink hover:text-accent break-all">
             {scan.target}
           </Link>
           <div className="flex items-center gap-2 text-[11px] text-muted">
-            <span>{scan.target_type}</span>
+            <span>{TYPE_LABEL[scan.target_type] ?? scan.target_type}</span>
             <span>·</span>
-            <span>{scan.status}</span>
+            <span className={scan.status === "failed" ? "text-risk-critical" : ""}>{STATUS_LABEL[scan.status] ?? scan.status}</span>
             <span>·</span>
             <span>{timeAgo(scan.started_at)}</span>
             {scan.tags.map((t) => (
@@ -102,15 +103,15 @@ function ScanRow({ scan }: { scan: Scan }) {
           {scan.threat_score}
         </span>
         <button className="btn-ghost btn !py-1 !px-2 text-xs" onClick={() => setOpen((o) => !o)}>
-          {open ? "Hide" : "Annotate"}
+          {open ? "Fermer" : "Annoter"}
         </button>
-        <a href={api.reportUrl(scan.id, "pdf")} download className="text-muted hover:text-accent text-xs" title="PDF report">
+        <a href={api.reportUrl(scan.id, "pdf")} download className="text-muted hover:text-accent text-xs" title="Rapport PDF">
           ⤓
         </a>
         <button
           className="text-muted hover:text-risk-critical text-xs"
           onClick={() => del.mutate(scan.id)}
-          title="Delete scan"
+          title="Supprimer le scan"
         >
           ✕
         </button>
@@ -134,7 +135,7 @@ function ScanRow({ scan }: { scan: Scan }) {
               ))}
               <input
                 className="input !py-1 !w-32 text-xs"
-                placeholder="add tag…"
+                placeholder="ajouter un tag…"
                 value={tagDraft}
                 onChange={(e) => setTagDraft(e.target.value)}
                 onKeyDown={(e) => {
@@ -162,12 +163,12 @@ function ScanRow({ scan }: { scan: Scan }) {
                   </button>
                 </div>
               ))}
-              {scan.notes.length === 0 && <div className="text-xs text-muted">No notes yet.</div>}
+              {scan.notes.length === 0 && <div className="text-xs text-muted">Pas encore de notes.</div>}
             </div>
             <div className="flex gap-2">
               <input
                 className="input !py-1 text-sm"
-                placeholder="Add a note and press Enter…"
+                placeholder="Écris une note puis Entrée…"
                 value={noteDraft}
                 onChange={(e) => setNoteDraft(e.target.value)}
                 onKeyDown={(e) => {

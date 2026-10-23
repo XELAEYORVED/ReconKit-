@@ -55,6 +55,14 @@ def compute_threat_score(results: list[ModuleResult]) -> tuple[int, list[dict[st
         if lk.get("breached"):
             add(min(20, lk.get("breach_count", 0) * 4), f"{lk.get('breach_count')} data breaches")
 
+    # Spoofable custom email domain (free webmail providers are out of the target's control).
+    if "email_profile" in by:
+        ep = by["email_profile"].data
+        if ep.get("provider_type") == "custom_domain" and ep.get("dmarc_policy") in (None, "none"):
+            add(5, f"Email domain {ep.get('domain')} has no enforced DMARC policy (spoofable)")
+        if ep.get("provider_type") == "disposable":
+            add(10, "Disposable (throwaway) email provider")
+
     # Reputation.
     if "reputation" in by:
         rep = by["reputation"].data

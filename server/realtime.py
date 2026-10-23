@@ -16,7 +16,7 @@ from fastapi import WebSocket
 from reconkit.database import init_db, session_scope
 from reconkit.engine import ReconEngine
 from reconkit.models import Scan, ScanStatus, TargetType
-from reconkit.utils.validators import detect_target_type
+from reconkit.utils.validators import detect_target_type, validate
 
 
 class ScanManager:
@@ -53,6 +53,8 @@ class ScanManager:
         """Create a pending scan row and start the background task."""
         await init_db()
         tt = TargetType(target_type) if target_type else detect_target_type(target)
+        # Reject bad targets up front (HTTP 400) instead of creating a scan that fails.
+        validate(target, tt if tt != TargetType.UNKNOWN else None)
         async with session_scope() as session:
             scan = Scan(target=target, target_type=tt, status=ScanStatus.RUNNING,
                         config={"modules": modules or "auto"})

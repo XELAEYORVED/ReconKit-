@@ -17,20 +17,15 @@ class LeakCheckModule(BaseModule):
     description = "Check an email against known data breaches (Have I Been Pwned)."
     rate_limit = 1.6  # HIBP requires >=1.5s between requests
     requires_api_key = True
-    api_service = "hibp"  # key stored as HIBP_API_KEY -> settings has generic lookup
+    api_service = "hibp"  # HIBP_API_KEY
     supported_types = (TargetType.EMAIL,)
     category = "identity"
 
     def available(self) -> bool:
-        # HIBP key is read from env var HIBP_API_KEY via settings extra handling.
-        import os
-
-        return bool(os.environ.get("HIBP_API_KEY"))
+        return bool(self.settings.hibp_api_key)
 
     async def run(self, target: str) -> ModuleResult:
-        import os
-
-        key = os.environ.get("HIBP_API_KEY", "")
+        key = self.settings.hibp_api_key
         if not key:
             return self.skipped(
                 target, "HIBP_API_KEY not set — breach lookup requires a Have I Been Pwned key."

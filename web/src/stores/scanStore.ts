@@ -15,6 +15,8 @@ interface ScanState {
   events: WsEvent[];
   finished: boolean;
   threatScore: number | null;
+  error: string | null;
+  setError: (msg: string) => void;
   start: (scanId: string) => void;
   applyEvent: (e: WsEvent) => void;
   reset: () => void;
@@ -30,10 +32,12 @@ export const useScanStore = create<ScanState>((set) => ({
   events: [],
   finished: false,
   threatScore: null,
+  error: null,
+  setError: (msg) => set({ error: msg, finished: true }),
   compareA: null,
   compareB: null,
   start: (scanId) =>
-    set({ activeScanId: scanId, progress: 0, modules: {}, events: [], finished: false, threatScore: null }),
+    set({ activeScanId: scanId, progress: 0, modules: {}, events: [], finished: false, threatScore: null, error: null }),
   applyEvent: (e) =>
     set((s) => {
       const modules = { ...s.modules };
@@ -53,10 +57,11 @@ export const useScanStore = create<ScanState>((set) => ({
         modules,
         events: [...s.events, e],
         progress: e.progress ?? s.progress,
-        finished: e.event === "scan_complete" ? true : s.finished,
+        finished: e.event === "scan_complete" || e.event === "scan_error" ? true : s.finished,
+        error: e.event === "scan_error" ? e.error ?? "Erreur inconnue" : s.error,
         threatScore: e.event === "scan_complete" ? e.threat_score ?? null : s.threatScore,
       };
     }),
-  reset: () => set({ activeScanId: null, progress: 0, modules: {}, events: [], finished: false }),
+  reset: () => set({ activeScanId: null, progress: 0, modules: {}, events: [], finished: false, error: null }),
   setCompare: (a, b) => set({ compareA: a, compareB: b }),
 }));

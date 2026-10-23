@@ -8,7 +8,6 @@ from reconkit.models import TargetType
 from reconkit.utils import enrichment
 from reconkit.modules.base import ModuleResult
 
-pytestmark = pytest.mark.asyncio
 
 
 async def test_run_scan_persists_and_enriches():

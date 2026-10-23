@@ -1,10 +1,11 @@
 import { Dashboard } from "../components/Dashboard";
+import { PageHeader } from "../components/Layout";
 
 export function Home() {
   return (
-    <div className="space-y-6">
-      <h1 className="text-xl text-accent">Dashboard</h1>
+    <>
+      <PageHeader title="Tableau de bord" subtitle="Vue d'ensemble de tes scans." />
       <Dashboard />
-    </div>
+    </>
   );
 }

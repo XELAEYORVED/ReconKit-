@@ -1,10 +1,13 @@
-"""Network mapping module (BGPView).
+"""Network mapping module (RIPEstat).
 
 Maps the autonomous system around a target IP/domain: ASN details, announced
-prefixes, upstream/downstream peers and IX presence. Keyless, passive.
+prefixes and BGP neighbours (upstreams / downstreams). Uses the public RIPEstat
+Data API — keyless and passive. (BGPView, the previous source, shut down.)
 """
 
 from __future__ import annotations
+
+from typing import Any
 
 import dns.asyncresolver
 
@@ -12,11 +15,13 @@ from ..models import TargetType
 from ..utils.validators import is_ip
 from .base import BaseModule, ModuleResult, make_client
 
+RIPESTAT = "https://stat.ripe.net/data/{call}/data.json?resource={resource}&sourceapp=reconkit"
+
 
 class NetworkMapModule(BaseModule):
     name = "network_map"
-    description = "ASN details, announced prefixes and BGP peers via BGPView."
-    rate_limit = 2.0
+    description = "ASN details, announced prefixes and BGP neighbours via RIPEstat."
+    rate_limit = 1.0
     supported_types = (TargetType.DOMAIN, TargetType.IP)
     category = "infrastructure"
 
@@ -32,58 +37,75 @@ class NetworkMapModule(BaseModule):
         except Exception:
             return None
 
+    async def _stat(self, client, call: str, resource: str) -> dict[str, Any]:
+        body = await self._get_json(
+            client, RIPESTAT.format(call=call, resource=resource), source="ripestat"
+        )
+        return body.get("data", {}) if isinstance(body, dict) else {}
+
     async def run(self, target: str) -> ModuleResult:
         ip = await self._resolve(target)
         if not ip:
             return self.failed(target, "Could not resolve target to an IP")
 
-        async with make_client(timeout=20.0) as client:
+        async with make_client(timeout=30.0) as client:
             try:
-                ipinfo = await self._get_json(
-                    client, f"https://api.bgpview.io/ip/{ip}", source="bgpview"
-                )
+                info = await self._stat(client, "network-info", ip)
             except Exception as exc:
-                return self.failed(target, f"BGPView lookup failed: {exc}")
+                return self.failed(target, f"RIPEstat lookup failed: {exc}")
 
-            prefixes = ipinfo.get("data", {}).get("prefixes", [])
-            asn_num = None
-            if prefixes:
-                asn_num = prefixes[0].get("asn", {}).get("asn")
+            asns = info.get("asns") or []
+            asn_num = int(asns[0]) if asns else None
+            asn_detail: dict[str, Any] = {"asn": asn_num}
+            prefixes: list[dict[str, Any]] = []
+            peers: dict[str, list] = {"upstreams": [], "downstreams": [], "ixs": []}
 
-            asn_detail = {}
-            peers = {"upstreams": [], "downstreams": [], "ixs": []}
             if asn_num:
+                resource = f"AS{asn_num}"
+                # Each call is optional: a partial map beats no map.
                 try:
-                    detail = await self._get_json(
-                        client, f"https://api.bgpview.io/asn/{asn_num}", source="bgpview"
-                    )
-                    d = detail.get("data", {})
-                    asn_detail = {
-                        "asn": asn_num,
-                        "name": d.get("name"),
-                        "description": d.get("description_short"),
-                        "country": d.get("country_code"),
-                        "website": d.get("website"),
-                        "rir": d.get("rir_allocation", {}).get("rir_name"),
-                    }
-                    peer = await self._get_json(
-                        client, f"https://api.bgpview.io/asn/{asn_num}/upstreams", source="bgpview"
-                    )
-                    ups = peer.get("data", {}).get("ipv4_upstreams", [])
-                    peers["upstreams"] = [
-                        {"asn": u.get("asn"), "name": u.get("name")} for u in ups[:30]
-                    ]
+                    ov = await self._stat(client, "as-overview", resource)
+                    holder = ov.get("holder") or ""
+                    name, _, desc = holder.partition(" - ")
+                    asn_detail.update({
+                        "name": name or None,
+                        "description": desc or holder or None,
+                        "rir": (ov.get("block") or {}).get("desc"),
+                        "announced": ov.get("announced"),
+                    })
+                except Exception:
+                    pass
+                try:
+                    loc = await self._stat(client, "rir-stats-country", resource)
+                    located = loc.get("located_resources") or []
+                    if located:
+                        asn_detail["country"] = located[0].get("location")
+                except Exception:
+                    pass
+                try:
+                    ann = await self._stat(client, "announced-prefixes", resource)
+                    prefixes = [{"prefix": p.get("prefix"), "name": asn_detail.get("name"),
+                                 "country": asn_detail.get("country")}
+                                for p in ann.get("prefixes", [])]
+                except Exception:
+                    pass
+                try:
+                    nb = await self._stat(client, "asn-neighbours", resource)
+                    neighbours = sorted(nb.get("neighbours", []),
+                                        key=lambda n: n.get("power", 0), reverse=True)
+                    peers["upstreams"] = [{"asn": n.get("asn"), "name": None}
+                                          for n in neighbours if n.get("type") == "left"][:30]
+                    peers["downstreams"] = [{"asn": n.get("asn"), "name": None}
+                                            for n in neighbours if n.get("type") == "right"][:30]
+                    peers["counts"] = nb.get("neighbour_counts", {})
                 except Exception:
                     pass
 
         data = {
             "ip": ip,
-            "asn": asn_detail or {"asn": asn_num},
-            "prefixes": [
-                {"prefix": p.get("prefix"), "name": p.get("name"),
-                 "country": p.get("country_code")}
-                for p in prefixes[:50]
-            ],
+            "ip_prefix": info.get("prefix"),
+            "asn": asn_detail,
+            "prefixes": prefixes[:50],
             "prefix_count": len(prefixes),
             "peers": peers,
         }

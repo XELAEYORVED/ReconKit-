@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { api } from "../lib/api";
+import { PageHeader } from "./Layout";
 
 export function CompareView() {
   const params = useParams();
@@ -17,14 +18,14 @@ export function CompareView() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl text-accent">Compare Scans</h1>
+      <PageHeader title="Comparer deux scans" subtitle="Ce qui a changé entre deux scans d'une même cible. Astuce : coche deux scans dans l'Historique." />
       {!ids && (
-        <div className="card flex gap-2">
-          <input className="input font-mono" placeholder="scan-id A" value={a} onChange={(e) => setA(e.target.value)} />
-          <input className="input font-mono" placeholder="scan-id B" value={b} onChange={(e) => setB(e.target.value)} />
+        <div className="card flex flex-col sm:flex-row gap-2">
+          <input className="input font-mono" placeholder="ID du 1er scan (scan-…)" value={a} onChange={(e) => setA(e.target.value)} />
+          <input className="input font-mono" placeholder="ID du 2e scan (scan-…)" value={b} onChange={(e) => setB(e.target.value)} />
         </div>
       )}
-      {isLoading && <div className="text-muted">Comparing…</div>}
+      {isLoading && <div className="text-muted">Comparaison…</div>}
       {error && <div className="text-risk-high text-sm">{(error as Error).message}</div>}
       {data && (
         <>
@@ -53,13 +54,13 @@ export function CompareView() {
               <h3 className="text-sm text-accent mb-2 capitalize">{key.replace("_", " ")}</h3>
               <div className="grid sm:grid-cols-2 gap-4 text-xs font-mono">
                 <div>
-                  <div className="text-risk-low mb-1">Added ({change.added.length})</div>
+                  <div className="text-risk-low mb-1">Ajouté ({change.added.length})</div>
                   {change.added.map((x: string) => (
                     <div key={x} className="text-risk-low">+ {x}</div>
                   ))}
                 </div>
                 <div>
-                  <div className="text-risk-high mb-1">Removed ({change.removed.length})</div>
+                  <div className="text-risk-high mb-1">Supprimé ({change.removed.length})</div>
                   {change.removed.map((x: string) => (
                     <div key={x} className="text-risk-critical">- {x}</div>
                   ))}
@@ -68,7 +69,7 @@ export function CompareView() {
             </div>
           ))}
           {Object.keys(data.changes).length === 0 && (
-            <div className="card text-sm text-muted">No differences detected between these scans.</div>
+            <div className="card text-sm text-muted">Aucune différence entre ces deux scans.</div>
           )}
         </>
       )}

@@ -58,6 +58,7 @@ class Settings(BaseSettings):
     google_cse_api_key: str = Field(default="", validation_alias="GOOGLE_CSE_API_KEY")
     google_cse_id: str = Field(default="", validation_alias="GOOGLE_CSE_ID")
     ipinfo_token: str = Field(default="", validation_alias="IPINFO_TOKEN")
+    hibp_api_key: str = Field(default="", validation_alias="HIBP_API_KEY")
 
     # Per-source rate limits (seconds between requests), overridable via YAML
     rate_limits: dict[str, float] = Field(default_factory=dict)
@@ -98,3 +99,27 @@ def get_settings(config_file: str | None = None) -> Settings:
     Path(settings.cache_dir).mkdir(parents=True, exist_ok=True)
     settings.data_path()
     return settings
+
+
+# Map a service name (as used by modules and the Settings page) to its settings attribute.
+KEY_ATTR: dict[str, str] = {
+    "shodan": "shodan_api_key", "virustotal": "virustotal_api_key",
+    "abuseipdb": "abuseipdb_api_key", "hunter": "hunter_api_key",
+    "otx": "otx_api_key", "github": "github_token",
+    "google_cse": "google_cse_api_key", "ipinfo": "ipinfo_token", "hibp": "hibp_api_key",
+}
+
+
+def apply_api_key(service: str, value: str | None) -> None:
+    """Set (or clear, with None) a key on the live settings so modules see it right away.
+
+    Clearing falls back to the value from the environment, if any.
+    """
+    attr = KEY_ATTR.get(service)
+    if not attr:
+        return
+    settings = get_settings()
+    if value is None:
+        alias = Settings.model_fields[attr].validation_alias
+        value = os.environ.get(str(alias), "") if alias else ""
+    setattr(settings, attr, value)

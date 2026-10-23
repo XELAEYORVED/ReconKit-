@@ -81,5 +81,8 @@ def validate(value: str, expected: TargetType | None = None) -> TargetType:
             raise ValueError(f"Target '{value}' is not a valid {expected.value}")
         return expected
     if detected == TargetType.UNKNOWN:
-        raise ValueError(f"Could not determine target type for '{value}'")
+        raise ValueError(
+            f"'{value}' is not a domain, IP, email or username "
+            "(use one value, without spaces or http://)"
+        )
     return detected

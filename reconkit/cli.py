@@ -159,7 +159,7 @@ def _module_oneliner(r) -> str:
 @click.argument("scan_id2")
 def compare(scan_id1, scan_id2):
     """Diff two scans of the same target."""
-    from .server.services import compare_scans  # reuse service
+    from server.services import compare_scans  # reuse service
 
     async def _go():
         await init_db()
